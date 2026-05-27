@@ -1,0 +1,7 @@
+Forward Deployed Engineer, GenAI
+Location: London, UK
+
+You will work directly with customers to design, prototype, and deploy GenAI solutions.
+The role requires strong Python skills, experience with LLM application development,
+retrieval-augmented generation, agentic workflows, cloud deployment, and stakeholder-facing delivery.
+Experience with Google Cloud, Vertex AI, LangChain, LangGraph, evaluation, and production debugging is preferred.
