@@ -1,0 +1,35 @@
+name: Ricardo Matos
+headline: Enterprise AI Solution Engineer and Forward-Deployed GenAI Builder
+summary: >
+  Solution Engineer with enterprise AI deployment experience across Microsoft Copilot,
+  Copilot Studio, Azure AI Foundry, governance, security reviews, adoption, and production rollout
+  in regulated environments.
+strengths:
+  - Enterprise AI deployment
+  - Stakeholder management
+  - Governance and security reviews
+  - Microsoft Copilot and Copilot Studio
+  - Azure AI Foundry
+  - Production rollout and adoption
+  - Complex technical troubleshooting
+experience_highlights:
+  - Owned end-to-end Copilot delivery for a regulated enterprise environment.
+  - Supported large-scale adoption with measurable utilization.
+  - Converted customer friction into technical and product improvements.
+  - Worked across engineering, security, compliance, and business stakeholders.
+target_roles:
+  - Forward Deployed Engineer
+  - Solution Architect
+  - Technical Product Manager
+preferred_locations:
+  - London
+  - Zurich
+  - Netherlands
+  - Remote or hybrid Europe
+skill_gaps:
+  - LangGraph
+  - LangChain
+  - LangSmith
+  - RAG implementation
+  - LLM fine-tuning
+  - Vertex AI
