@@ -66,6 +66,12 @@ class ApprovalDecision(BaseModel):
     rectify_target: str | None = None
 
 
+class ChatIntent(BaseModel):
+    action: Literal["analyze_job", "followup", "chitchat"]
+    job_text: str | None = None
+    job_url: str | None = None
+
+
 class ApplicationPack(BaseModel):
     requirements: JobRequirements
     match_analysis: MatchAnalysis

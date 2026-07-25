@@ -33,6 +33,36 @@ Match analysis:
 {match_analysis}
 """
 
+CHAT_INTENT_PROMPT = """
+Classify what the user wants from their chat message.
+
+- "analyze_job": they want a job posting analyzed. Extract the job description text
+  verbatim into job_text if they pasted it, or the URL into job_url if they linked it.
+- "followup": they are asking about a job analysis that already ran in this session
+  (only valid if an application pack is already active).
+- "chitchat": anything else (greetings, unrelated questions, etc).
+
+An application pack is currently active: {has_active_pack}
+
+User message:
+{message}
+"""
+
+CHAT_FOLLOWUP_PROMPT = """
+You are answering a follow-up question about a job application analysis you already
+produced in this conversation. Answer conversationally and concisely. Do not restate
+the whole pack — reference only what's relevant to the question.
+
+Application pack:
+{pack}
+
+Recent conversation:
+{history}
+
+User's new message:
+{message}
+"""
+
 ASSET_GENERATION_PROMPT = """
 Generate application assets based on the requirements, match analysis, and gap analysis.
 

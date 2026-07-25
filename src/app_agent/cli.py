@@ -1,11 +1,18 @@
 from pathlib import Path
 import typer
 from rich.console import Console
+from app_agent.chat import run_chat
 from app_agent.graph import build_graph
 from app_agent.models import JobInput
 
 app = typer.Typer(help="Forward-Deployed GenAI Workflow Agent")
 console = Console()
+
+
+@app.command()
+def chat():
+    """Interactive chat: paste a JD or URL, ask follow-up questions about results."""
+    run_chat()
 
 
 @app.command()

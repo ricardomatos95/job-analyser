@@ -45,12 +45,13 @@ def requirements_node(state: AgentState) -> AgentState:
 def retrieve_proof_points_node(state: AgentState) -> AgentState:
     """For each JD requirement, retrieve the most relevant real proof points
     instead of handing the whole candidate profile to the matching step.
-    Vector search pulls a wider candidate pool (top 10), then an LLM
-    re-ranking pass narrows it to the top 3 actually passed to matching."""
-    retrieved = {}
-    for req in state["requirements"].requirements:
-        candidates = retrieve_proof_points(req.requirement, top_k=10)
-        retrieved[req.requirement] = rerank_proof_points(req.requirement, candidates, top_k=3)
+    Vector search pulls a wider candidate pool (top 10) per requirement, then a
+    single batched LLM re-ranking call narrows each down to its top 3."""
+    candidates_by_requirement = {
+        req.requirement: retrieve_proof_points(req.requirement, top_k=10)
+        for req in state["requirements"].requirements
+    }
+    retrieved = rerank_proof_points(candidates_by_requirement, top_k=3)
     return {"retrieved_proof_points": retrieved}
 
 
