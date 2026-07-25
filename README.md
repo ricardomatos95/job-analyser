@@ -15,6 +15,13 @@ This project is a LangGraph-based agentic workflow that converts a job posting i
 - LangSmith tracing
 - Pytest test suite
 
+- ## Stack
+
+- **LangGraph** — orchestrates the multi-step agentic pipeline as a graph rather than a single prompt chain.
+- **Claude (Anthropic)** — powers extraction, matching, and generation steps.
+- **LangSmith** — tracing/observability across the graph run.
+- **Pytest** — test coverage for the pipeline stages.
+
 ## Architecture
 
 ```mermaid
