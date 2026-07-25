@@ -15,6 +15,8 @@ from app_agent.nodes.profile_matcher import load_candidate_profile, match_profil
 from app_agent.nodes.gap_analyzer import analyze_gaps
 from app_agent.nodes.asset_generator import generate_assets
 from app_agent.nodes.approval import request_human_approval
+from app_agent.rag.retrieve import retrieve_proof_points
+from app_agent.rag.rerank import rerank_proof_points
 
 
 class AgentState(TypedDict, total=False):
@@ -22,6 +24,7 @@ class AgentState(TypedDict, total=False):
     job_text: str
     candidate_profile: CandidateProfile
     requirements: JobRequirements
+    retrieved_proof_points: dict[str, list[dict]]
     match_analysis: MatchAnalysis
     gap_analysis: GapAnalysis
     generated_assets: GeneratedAssets
@@ -39,11 +42,27 @@ def requirements_node(state: AgentState) -> AgentState:
     return {"requirements": extract_requirements(state["job_text"])}
 
 
+def retrieve_proof_points_node(state: AgentState) -> AgentState:
+    """For each JD requirement, retrieve the most relevant real proof points
+    instead of handing the whole candidate profile to the matching step.
+    Vector search pulls a wider candidate pool (top 10), then an LLM
+    re-ranking pass narrows it to the top 3 actually passed to matching."""
+    retrieved = {}
+    for req in state["requirements"].requirements:
+        candidates = retrieve_proof_points(req.requirement, top_k=10)
+        retrieved[req.requirement] = rerank_proof_points(req.requirement, candidates, top_k=3)
+    return {"retrieved_proof_points": retrieved}
+
+
 def profile_match_node(state: AgentState) -> AgentState:
     profile = load_candidate_profile()
     return {
         "candidate_profile": profile,
-        "match_analysis": match_profile(profile, state["requirements"]),
+        "match_analysis": match_profile(
+            profile,
+            state["requirements"],
+            state.get("retrieved_proof_points"),
+        ),
     }
 
 
@@ -100,6 +119,7 @@ def build_graph():
 
     graph.add_node("load_input", input_loader_node)
     graph.add_node("extract_requirements", requirements_node)
+    graph.add_node("retrieve_proof_points", retrieve_proof_points_node)
     graph.add_node("match_profile", profile_match_node)
     graph.add_node("analyze_gaps", gap_analysis_node)
     graph.add_node("generate_assets", asset_generation_node)
@@ -108,7 +128,8 @@ def build_graph():
 
     graph.set_entry_point("load_input")
     graph.add_edge("load_input", "extract_requirements")
-    graph.add_edge("extract_requirements", "match_profile")
+    graph.add_edge("extract_requirements", "retrieve_proof_points")
+    graph.add_edge("retrieve_proof_points", "match_profile")
     graph.add_edge("match_profile", "analyze_gaps")
     graph.add_edge("analyze_gaps", "generate_assets")
     graph.add_edge("generate_assets", "build_pack")
