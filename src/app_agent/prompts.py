@@ -10,10 +10,15 @@ Job posting:
 PROFILE_MATCH_PROMPT = """
 Compare the candidate profile against the job requirements.
 
-Be honest. Mark weak or missing matches clearly.
+Be honest. Mark weak or missing matches clearly. Where a retrieved proof point is
+available for a requirement, prefer it as evidence over the general profile summary —
+it is more specific and detailed.
 
 Candidate profile:
 {candidate_profile}
+
+Retrieved proof points per requirement:
+{retrieved_proof_points}
 
 Job requirements:
 {job_requirements}

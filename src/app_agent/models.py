@@ -62,6 +62,8 @@ class GeneratedAssets(BaseModel):
 class ApprovalDecision(BaseModel):
     approved: bool
     reviewer_notes: str | None = None
+    rectify: bool = False
+    rectify_target: str | None = None
 
 
 class ApplicationPack(BaseModel):
