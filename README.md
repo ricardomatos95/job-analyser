@@ -115,7 +115,8 @@ employer information — stick to public job postings.
   disables Ollama's "thinking" mode by default — reasoning models like `qwen3` otherwise
   generate a lengthy hidden chain-of-thought before every response, which measured ~30x slower
   per call for the bounded extraction/scoring/drafting tasks this pipeline does (a full run
-  went from never finishing in 10+ minutes to ~2.5 minutes end-to-end on `qwen3:14b`).
+  went from never finishing in 10+ minutes to ~2.5 minutes end-to-end on `qwen3:14b`). See
+  [`docs/performance-notes.md`](docs/performance-notes.md) for the full before/after breakdown.
 - **sentence-transformers** (`all-MiniLM-L6-v2`) + **ChromaDB** — open-weight embeddings and a
   local vector store for proof-point retrieval (`src/app_agent/rag/`).
 - **LangSmith** — tracing/observability across the graph run.
