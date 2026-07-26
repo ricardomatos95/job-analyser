@@ -111,7 +111,11 @@ employer information — stick to public job postings.
 - **LangGraph** — orchestrates the multi-step agentic pipeline as a graph rather than a single
   prompt chain.
 - **LLM provider** — OpenAI, Claude (Anthropic), or a local model via Ollama, selected by
-  `LLM_PROVIDER` in `.env`. Defaults to Ollama.
+  `LLM_PROVIDER` in `.env`. Defaults to Ollama. `get_chat_model()` (`src/app_agent/llm.py`)
+  disables Ollama's "thinking" mode by default — reasoning models like `qwen3` otherwise
+  generate a lengthy hidden chain-of-thought before every response, which measured ~30x slower
+  per call for the bounded extraction/scoring/drafting tasks this pipeline does (a full run
+  went from never finishing in 10+ minutes to ~2.5 minutes end-to-end on `qwen3:14b`).
 - **sentence-transformers** (`all-MiniLM-L6-v2`) + **ChromaDB** — open-weight embeddings and a
   local vector store for proof-point retrieval (`src/app_agent/rag/`).
 - **LangSmith** — tracing/observability across the graph run.
@@ -142,9 +146,12 @@ Candidate matching is grounded in a small vector-search corpus (`data/proof_poin
 rather than dumping the whole candidate profile into every prompt. `retrieve_proof_points()`
 pulls the top candidates per requirement via vector search, optionally filtered by archetype
 (`agentic_ai_engineer`, `ai_solutions_architect`, `end_user_computing` — see
-`src/app_agent/rag/build_index.py`), then `rerank_proof_points()` does a second LLM pass —
-batched across all of the JD's requirements in a single call — to re-score before the top-k
-per requirement are handed to the Profile Matcher node.
+`src/app_agent/rag/build_index.py`), then `rerank_proof_points()` does a second LLM pass — one
+small call per requirement — to re-score before the top-k per requirement are handed to the
+Profile Matcher node. Kept as one call per requirement rather than a single batched call: on a
+local model, a batched call processes the same total tokens as one long, unreportable block,
+so `app-agent chat` instead reports progress (`reranking proof points 2/6...`) as each small
+call finishes.
 
 Check retrieval quality directly:
 

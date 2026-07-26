@@ -101,7 +101,11 @@ def summarize_pack(pack: ApplicationPack) -> str:
 
 def run_chat() -> None:
     console = Console()
-    graph = build_graph()
+
+    def report_rerank_progress(done: int, total: int) -> None:
+        console.print(f"[dim]   reranking proof points {done}/{total}...[/dim]")
+
+    graph = build_graph(on_proof_point_progress=report_rerank_progress)
     last_pack: ApplicationPack | None = None
     history: list[dict] = []
 

@@ -1,3 +1,5 @@
+import functools
+from collections.abc import Callable
 from typing import TypedDict
 from langgraph.graph import END, StateGraph
 from app_agent.models import (
@@ -42,16 +44,20 @@ def requirements_node(state: AgentState) -> AgentState:
     return {"requirements": extract_requirements(state["job_text"])}
 
 
-def retrieve_proof_points_node(state: AgentState) -> AgentState:
+def retrieve_proof_points_node(
+    state: AgentState, on_progress: Callable[[int, int], None] | None = None
+) -> AgentState:
     """For each JD requirement, retrieve the most relevant real proof points
     instead of handing the whole candidate profile to the matching step.
     Vector search pulls a wider candidate pool (top 10) per requirement, then a
-    single batched LLM re-ranking call narrows each down to its top 3."""
+    small LLM re-ranking call per requirement narrows each down to its top 3 —
+    on_progress (if given) is called after each requirement's rerank finishes,
+    since this node is otherwise the slowest and least visible pipeline stage."""
     candidates_by_requirement = {
         req.requirement: retrieve_proof_points(req.requirement, top_k=10)
         for req in state["requirements"].requirements
     }
-    retrieved = rerank_proof_points(candidates_by_requirement, top_k=3)
+    retrieved = rerank_proof_points(candidates_by_requirement, top_k=3, on_progress=on_progress)
     return {"retrieved_proof_points": retrieved}
 
 
@@ -115,12 +121,15 @@ def route_after_approval(state: AgentState) -> str:
     return END
 
 
-def build_graph():
+def build_graph(on_proof_point_progress: Callable[[int, int], None] | None = None):
     graph = StateGraph(AgentState)
 
     graph.add_node("load_input", input_loader_node)
     graph.add_node("extract_requirements", requirements_node)
-    graph.add_node("retrieve_proof_points", retrieve_proof_points_node)
+    graph.add_node(
+        "retrieve_proof_points",
+        functools.partial(retrieve_proof_points_node, on_progress=on_proof_point_progress),
+    )
     graph.add_node("match_profile", profile_match_node)
     graph.add_node("analyze_gaps", gap_analysis_node)
     graph.add_node("generate_assets", asset_generation_node)
